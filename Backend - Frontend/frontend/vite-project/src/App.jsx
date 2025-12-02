@@ -15,7 +15,7 @@ function App() {
       .catch((error) => {
         console.error('Error fetching jokes:', error)
       })
-  }, [])
+  })
 
   return (
     <>
