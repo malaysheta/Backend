@@ -32,7 +32,7 @@ const registerUser = asyncHandler(async (req,res)=>{
         throw new ApiError(400, "All fields are required");
     }
 
-    const existedUser = User.find({
+    const existedUser = await User.findOne({
         $or : [{ username } , { email }]
     })
 
@@ -49,10 +49,10 @@ const registerUser = asyncHandler(async (req,res)=>{
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(avatarLocalPath);
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
     if(!avatar){
-        throw new ApiError(409, "Avatar to joishe j baka")
+        throw new ApiError(505, "Claudinary error ")
     }
 
     const user = await User.create({
@@ -70,7 +70,7 @@ const registerUser = asyncHandler(async (req,res)=>{
     if(!CreatedUser){
         throw new ApiError(500, "Server is not working something went wrong while user registration!")
     }
-    res.status(201).json(ApiResponse(200,CreatedUser,"User registed successfully"))
+    res.status(201).json(new ApiResponse(200,CreatedUser,"User registed successfully"))
 })
 
 export default registerUser
