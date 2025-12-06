@@ -5,6 +5,7 @@ import uploadOnCloudinary from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
+
 const generateAccessAndRefreshToken = async(userId) =>{
     try {
         const user = await User.findById(userId)
@@ -191,4 +192,55 @@ const refreshAccessToken = asyncHandler (async(req,res)=>{
     }
 })
 
-export {registerUser , loginUser , logOutUser , refreshAccessToken}
+
+const changeUserPassword = asyncHandler(async (req,res)=>{
+    
+    const {oldPassword , newPassword} = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        throw new ApiError(400,"User not availble")
+    }
+
+    const  isPasscorr =await user.isPassCorrect(oldPassword);
+    if(!isPasscorr){
+        throw new ApiError(400,"Incorrect Password")
+    }
+
+    user.password = newPassword;
+    await user.save({validateBeforeSave : false})
+
+    res.status(200).json(new ApiResponse(200,"Password change successfully."))
+})
+
+
+const getCurrentUser = asyncHandler(async(req,res)=>{
+    const currUser  = req.user;
+    if (!currUser) {
+        throw new ApiError(400,"Please log in")
+    }
+    res.status(200).json(new ApiResponse(200,currUser,"current User fetch succesfully"));
+})
+
+const updateAvatar = asyncHandler(async(req,res)=>{
+    const AvatarLocalPath = req.file?.path;
+    if (!AvatarLocalPath) {
+        throw new ApiError(400,"Avatar file is missing")
+    }
+
+    const cloudinary = await uploadOnCloudinary(AvatarLocalPath)
+    if (!cloudinary) {
+        throw new ApiError(500,"Enable to Avatar store in server")
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id,{
+        $set:{
+            avatar:cloudinary.url
+        }
+    },{new:true}).select( " -password");
+
+    res.status(200).json(new ApiResponse(200,user,"Avatar img is change successfully"))
+
+})
+
+export {registerUser , loginUser , logOutUser , refreshAccessToken, changeUserPassword , getCurrentUser , updateAvatar}
