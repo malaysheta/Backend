@@ -20,8 +20,4 @@ import UserRoute from "./routes/user.route.js"
 
 app.use("/api/v1/users",UserRoute);
  
-app.post("/test", (req, res) => {
-    res.json({ message: "Working fine" });
-});
-
 export default  app 
