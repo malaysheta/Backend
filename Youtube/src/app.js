@@ -19,7 +19,7 @@ import UserRoute from "./routes/user.route.js"
 // routes declaration
 
 app.use("/api/v1/users",UserRoute);
-
+ 
 app.post("/test", (req, res) => {
     res.json({ message: "Working fine" });
 });
