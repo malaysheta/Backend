@@ -103,5 +103,34 @@ const getAllVideos = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200,videoList,`pageNumber : ${page} , limit : ${limitNum}`));
 })
 
+const updateVideo = asyncHandler(async (req, res) => {
+    const { videoId , title , description } = req.query
+    //TODO: update video details like title, description, thumbnail
+    if(!videoId) {
+        throw new ApiError(400,"Video id not found");
+    }
 
-export { publishAVideo , getAllVideos}
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(401,"Video not found in db")
+    }
+
+    if(title){
+        video.title = title;
+    }
+
+    if(description){
+        video.description = description
+    }
+
+    const videoObj = await video.save({ValidityState : false});
+
+    if(!videoObj){
+        throw new ApiError(500,"Unable to update the details")
+    }
+
+    res.status(200).json(new ApiResponse(200,videoObj,"Details are updated successfully"))
+})
+
+export { publishAVideo , getAllVideos , updateVideo}
