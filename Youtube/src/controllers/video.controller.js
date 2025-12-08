@@ -65,4 +65,43 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 })
 
-export { publishAVideo }
+const getAllVideos = asyncHandler(async (req, res) => {
+    //TODO: get all videos based on query, sort, pagination
+    const {
+        page = 1,
+        limit = 2,
+        query,
+        sortBy = "createdAt",
+        sortType = -1,
+    } = req.query;
+    
+    const pageNum = Math.max(1 , Number(page));
+    const limitNum = Math.max(1,Number(limit));
+    const skip = (pageNum -1) * limitNum; 
+
+    // creating sort object for sortby and sorttype combination  
+    //sortType -1 = descending order and 1 for assending order
+
+    const sortObj = {};
+    sortObj[sortBy] = Number(sortType);
+    
+    const videoList = await Video.find({
+        $or : [
+            {
+                title : query,
+            },
+            {
+                description : query,
+            },
+        ]
+    }).skip(skip).limit(limitNum).sort(sortObj).select(" -updatedAt -isPublished -__v ");
+
+    if(!videoList){
+        throw new ApiError(401,"Query releted video not found")
+    }
+    
+    res.status(200).json(new ApiResponse(200,videoList,`pageNumber : ${page} , limit : ${limitNum}`));
+})
+
+
+export { publishAVideo , getAllVideos}
