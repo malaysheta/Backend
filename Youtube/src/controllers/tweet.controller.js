@@ -35,4 +35,20 @@ const createTweet = asyncHandler(async(req,res)=>{
 
 });
 
-export {createTweet}
+const getUserTweet = asyncHandler(async(req,res)=>{
+    const user = req.user;
+    if (!user) {
+        throw new ApiError("user not found");
+    }
+    const tweetList = await Tweet.find({
+        owner : user._id
+    }).select(" -owner -_id -createdAt -updatedAt");
+
+    if(!tweetList){
+        throw new ApiError(400,"Users tweet not found");
+    }
+
+    res.status(200).json(new ApiResponse(200,tweetList,"Users twits are fetched successfully"));
+})
+
+export {createTweet , getUserTweet}
