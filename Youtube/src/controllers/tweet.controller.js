@@ -51,4 +51,33 @@ const getUserTweet = asyncHandler(async(req,res)=>{
     res.status(200).json(new ApiResponse(200,tweetList,"Users twits are fetched successfully"));
 })
 
-export {createTweet , getUserTweet}
+const updateTweet = asyncHandler(async (req, res) => {
+    //TODO: update tweet
+    const {oldTweet , newTweet} = req.body;
+
+    if (!oldTweet && !newTweet) {
+        throw new ApiError(400,"Old and new tweet are required")
+    }
+
+    const user = req.user;
+    if (!user) {
+        throw new ApiError(400,"Please logged in before updating the tweet");
+    }
+    const tweet = await Tweet.findOne({content : oldTweet});
+
+    if(!tweet){
+        throw new ApiError("oldtweet not found")
+    }
+    
+    tweet.content = newTweet;
+
+    const result = await tweet.save({ValidityState : false})
+
+    if (!result) {
+        throw new ApiError(500,"Internal server error , enable to update in database")
+    }
+
+    res.status(200).json(new ApiResponse(200,result,"tweet updated successfully."))
+})
+
+export {createTweet , getUserTweet , updateTweet}
