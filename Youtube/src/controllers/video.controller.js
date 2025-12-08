@@ -4,6 +4,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Video} from "../models/video.model.js"
+import { extractPublicIdFromUrl } from "../utils/extractPublicIdFromUrl.js"
+import cloudinary from "cloudinary"
 
 const publishAVideo = asyncHandler(async (req, res) => {
     //take title ans desciption of video
@@ -94,7 +96,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
                 description : query,
             },
         ]
-    }).skip(skip).limit(limitNum).sort(sortObj).select(" -updatedAt -isPublished -__v ");
+    }).skip(skip).limit(limitNum).sort(sortObj).select(" -updatedAt -__v ");
 
     if(!videoList){
         throw new ApiError(401,"Query releted video not found")
@@ -133,4 +135,51 @@ const updateVideo = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200,videoObj,"Details are updated successfully"))
 })
 
-export { publishAVideo , getAllVideos , updateVideo}
+const deleteVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.query
+    //TODO: delete video
+    if(!videoId){
+        throw new ApiError(400,"Video id not found")
+    }
+    const video =  await Video.findById(videoId);
+
+    if(!video){
+        throw new ApiError(400,"Video is not in db")
+    }
+    
+    const cluodinary_public_id = extractPublicIdFromUrl(video.videoFile);
+
+    if(!cluodinary_public_id){
+        throw new ApiError(400,"Mongo Url not found")
+    }
+    await cloudinary.uploader.destroy(cluodinary_public_id);
+    await Video.findByIdAndDelete(videoId);
+
+    res.status(200).json(new ApiResponse(200,"Video deleted successfully"))
+})
+
+const togglePublishStatus = asyncHandler(async (req, res) => {
+    const { videoId } = req.query
+    if(!videoId) {
+        throw new ApiError(400,"Video id not found");
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(401,"Video not found in db")
+    }
+
+    video.isPublished = !video.isPublished
+
+    const videoObj = await video.save({ValidityState : false});
+
+    if(!videoObj){
+        throw new ApiError(500,"Unable to update the details")
+    }
+
+    res.status(200).json(new ApiResponse(200,videoObj,"Details are updated successfully"))
+})
+
+
+export { publishAVideo , getAllVideos , updateVideo , deleteVideo , togglePublishStatus}
