@@ -80,4 +80,23 @@ const updateTweet = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200,result,"tweet updated successfully."))
 })
 
-export {createTweet , getUserTweet , updateTweet}
+const deleteTweet = asyncHandler(async (req, res) => {
+    const content = req.body.content;
+    if (!content) {
+        throw new ApiError(401,"tweet content is require for deleting the tweet")
+    }
+
+    const tweetperson = await Tweet.findOne({content : content});
+    if (!tweetperson) {
+        throw new ApiError(401,`You did not tweeted this tweet ${content}`)
+    }
+
+    const tweet = await Tweet.findByIdAndDelete(tweetperson._id);
+
+    if(!tweet){
+        throw new ApiError(500,"Internal server error , enable to delete the tweet")
+    }
+    res.status(200).json(new ApiResponse(200,"Tweet deleted successfully"))
+})
+
+export {createTweet , getUserTweet , updateTweet , deleteTweet}
