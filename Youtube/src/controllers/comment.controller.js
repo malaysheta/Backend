@@ -32,4 +32,29 @@ const addComment = asyncHandler(async (req, res) => {
 
 })
 
-export { addComment }
+const getVideoComments = asyncHandler(async (req, res) => {
+    //TODO: get all comments for a video
+    const {videoId} = req.params
+    const {page = 1, limit = 10} = req.query
+
+    if(!videoId){
+        throw new ApiError(401,"Videoid is required")
+    }
+
+    
+
+    let pageNum = Math.max(1,Number(page));
+    let limitNum = Math.max(1,Number(limit));
+
+    const skip = (pageNum - 1)* limitNum;
+
+    const getallcomments = await Comment.find({video : videoId}).sort({createdAt : -1}).skip(skip).limit(limitNum).populate("owner", "username").select(" -createdAt -updatedAt -video");
+
+    if(!getallcomments){
+        throw  new ApiError(401,"No comments found in this video")
+    }
+    res.status(200).json(new ApiResponse(200,getallcomments,`Comments fetched successfully page : ${pageNum} limit : ${limitNum}`))
+})
+
+
+export { addComment , getVideoComments}
