@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const commentSchema = new mongoose.Schema({
     content : {
         type : String,
@@ -10,7 +11,7 @@ const commentSchema = new mongoose.Schema({
         ref : "Video"
     },
     owner : {
-        type : mongoose.Schema.types.ObjectId,
+        type : mongoose.Schema.Types.ObjectId,
         ref : "User"
     }
 },{timestamps : true});
