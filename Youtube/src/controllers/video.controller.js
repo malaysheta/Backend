@@ -96,7 +96,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
                 description : query,
             },
         ]
-    }).skip(skip).limit(limitNum).sort(sortObj).select(" -updatedAt -__v ");
+    }).skip(skip).limit(limitNum).sort(sortObj).populate("owner", "username").select(" -updatedAt -__v ");
 
     if(!videoList){
         throw new ApiError(401,"Query releted video not found")
