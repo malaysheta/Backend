@@ -18,7 +18,7 @@ import UserRoute from "./routes/user.route.js"
 import TweetRoute from './routes/tweet.route.js'
 import VideoRoute from "./routes/video.route.js"
 import CommentRoute from "./routes/comment.route.js"
-import PlaylistRoute from './routes/video.route.js'
+import PlaylistRoute from './routes/playlist.route.js'
 // routes declaration
 
 //user route
