@@ -125,7 +125,10 @@ const updateVideo = asyncHandler(async (req, res) => {
     if(description){
         video.description = description
     }
-
+    const user = req.user
+    if (video.owner.toString() !== user._id.toString()) {
+        throw new ApiError(403,"You are not authorized to update this video details")
+    }
     const videoObj = await video.save({ValidityState : false});
 
     if(!videoObj){
@@ -147,6 +150,11 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Video is not in db")
     }
     
+    const user = req.user
+    if (video.owner.toString() !== user._id.toString()) {
+        throw new ApiError(403,"You are not authorized to delete the video")
+    }
+
     const cluodinary_public_id = extractPublicIdFromUrl(video.videoFile);
 
     if(!cluodinary_public_id){
@@ -168,6 +176,12 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     if (!video) {
         throw new ApiError(401,"Video not found in db")
+    }
+
+    const user = req.user
+    
+    if (video.owner.toString() !== user._id.toString()) {
+        throw new ApiError(403,"You are not authorized to update the video visibility")
     }
 
     video.isPublished = !video.isPublished
