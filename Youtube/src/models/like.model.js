@@ -9,7 +9,7 @@ const LikeSchema  = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : "Video"
     },
-    likeby : {
+    likedBy : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "User"
     },
