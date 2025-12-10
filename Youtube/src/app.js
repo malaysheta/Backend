@@ -21,6 +21,8 @@ import CommentRoute from "./routes/comment.route.js"
 import PlaylistRoute from './routes/playlist.route.js'
 import SubscriptionRoute from './routes/subscription.route.js'
 import LikeRoute from './routes/like.route.js'
+import DashboardRoute from './routes/dashboard.route.js'
+
 // routes declaration
 
 //user route
@@ -37,6 +39,7 @@ app.use('/api/v1/playlist',PlaylistRoute);
 app.use('/api/v1/subscription',SubscriptionRoute);
 //like route
 app.use('/api/v1/like',LikeRoute)
-
+//dash board route
+app.use('/api/v1/dashboard',DashboardRoute)
 
 export default  app 
