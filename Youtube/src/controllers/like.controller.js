@@ -33,4 +33,33 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     }
 })
 
-export { toggleVideoLike }
+const toggleCommentLike = asyncHandler(async (req, res) => {
+    const {commentId} = req.params
+    //TODO: toggle like on comment
+     const user = req.user;
+    
+    if(!commentId){
+        throw new ApiError(400,"comment id is required")
+    }
+    if(!user){
+        throw new ApiError(401,"User should be logged in")
+    }
+
+    const isAlreadyLiked = await Like.findOne({comment : commentId , likedBy : user._id});
+
+    if(isAlreadyLiked){
+        await Like.findOneAndDelete({comment : commentId , likedBy : user._id});
+        res.status(200).json(new ApiResponse(200,"comment like has been removed successfully"));
+    }
+    else{
+        const like = await Like.create({
+            comment : commentId,
+            likedBy : user._id,
+        })
+    
+        res.status(200).json(new ApiResponse(200,like,"comments has been liked succesfully"))
+    }
+            
+})
+
+export { toggleVideoLike , toggleCommentLike}
